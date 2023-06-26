@@ -1,4 +1,4 @@
-const { unlock, hre } = require("hardhat");
+import { unlock } from "hardhat";
 
 async function main() {
   // deploy the Unlock contract

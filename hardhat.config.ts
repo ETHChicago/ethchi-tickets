@@ -16,6 +16,9 @@ if (process.env.DEV_PRIVATE_KEY) {
 const config: HardhatUserConfig = {
   solidity: "0.8.17",
   networks: {
+    hardhat: {
+      initialBaseFeePerGas: 0
+    },
     mumbai: {
       url: mumbaiRpc,
       accounts: [devKey],

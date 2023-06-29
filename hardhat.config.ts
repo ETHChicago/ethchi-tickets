@@ -7,6 +7,7 @@ require("dotenv").config();
 
 
 const mumbaiRpc = process.env.MUMBAI_RPC;
+const arbitrumRpc = process.env.ARBITRUM_RPC;
 
 let devKey: string = "";
 if (process.env.DEV_PRIVATE_KEY) {
@@ -22,6 +23,10 @@ const config: HardhatUserConfig = {
     mumbai: {
       url: mumbaiRpc,
       accounts: [devKey],
+    },
+    arbitrum: {
+        url: arbitrumRpc,
+        accounts: [devKey]
     }
   }
 }

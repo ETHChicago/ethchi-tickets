@@ -18,7 +18,7 @@ const config: HardhatUserConfig = {
   networks: {
     mumbai: {
       url: mumbaiRpc,
-      accounts: [devKey]
+      accounts: [devKey],
     }
   }
 }

@@ -1,70 +1,126 @@
-import { CreateLockArgs } from "@unlock-protocol/hardhat-plugin/dist/src/createLock";
 import { UnlockV12, PublicLockV13 } from "@unlock-protocol/contracts";
 import { network, ethers } from "hardhat";
-
-// create sample data
-const lockParams: CreateLockArgs = {
-  expirationDuration: 60 * 60 * 24 * 30, // 30 days
-  currencyContractAddress: ethers.constants.AddressZero, // address 0 is ETH but could be any ERC20 token
-  keyPrice: ethers.utils.parseEther('.001'), // in wei
-  maxNumberOfKeys: 100,
-  name: 'Unlock-Protocol Sample Lock',
-}
+import networkConfig from "../helper.config";
 
 async function main(): Promise<void> {
+  console.log(`NETWORK: ${network.name}`);
 
-  if (network.name == "mumbai"){
-    console.log(`NETWORK: ${network.name}`);
+  // get addresses for current network
+  const adrs = networkConfig[`${network.name}`] 
 
-    // get signer
-    let signers;
-    await ethers.getSigners()
-    .then(r => signers = r)
-    const signer = signers[0];
-    console.log(`SIGNER: ${signer.address}`)
+  // get signer
+  let signers;
+  await ethers.getSigners()
+  .then(r => signers = r)
+  const signer = signers[0];
+  console.log(`SIGNER: ${signer.address}`)
 
-    // instantiate unlock protocol
-    const unlockAddress = "0x1FF7e338d5E582138C46044dc238543Ce555C963"
-    const unlockInterface = new ethers.Contract(unlockAddress, UnlockV12.abi, signer)
-    const lockInterface = new ethers.utils.Interface(PublicLockV13.abi);
+  // instantiate unlock protocol
+  const unlockAddress = adrs.unlockProtocol;
+  const unlock = new ethers.Contract(unlockAddress, UnlockV12.abi, signer);
+  const lockInterface = new ethers.utils.Interface(PublicLockV13.abi);
 
-    // initialize lock creator
-    /*
-    console.log("initializing unlock...")
-    await unlockInterface.initialize(
-      signer.address, // lock creator 
-    ).then(r => (
-      console.log(r)
-    )).catch(e => (
-      console.log(e.reason)
+  // create VIP lock
+  let params = lockInterface.encodeFunctionData(
+    "initialize(address,uint256,address,uint256,uint256,string)",
+    [
+      signer.address, 
+      ethers.constants.MaxUint256, // max for unlimited
+      adrs.usdc, // polygon usdc
+      ethers.utils.parseUnits("1000", 6), // usdc is 6 decimals
+      100,
+      "ETHCHI - VIP",
+    ]
+  );
+  let lockAddress;
+  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+    r.wait().then(r => (
+      lockAddress = r.logs[0].address
     ))
-    */
+  ))
+  console.log(`Lock deployed to: ${lockAddress}`)
 
-    // create lock
-    const params = lockInterface.encodeFunctionData(
-      "initialize(address,uint256,address,uint256,uint256,string)",
-      [
-        signer.address,
-        31 * 60 * 60 * 24, // 30 days in seconds
-        ethers.constants.AddressZero, // We use the base chain currency
-        ethers.utils.parseUnits("0.01", 18), // 0.01 Eth
-        1000,
-        "testing!",
-      ]
-    );
-    let lockAddress;
-    await unlockInterface.createUpgradeableLockAtVersion(params, 12).then(r => (
-      r.wait().then(r => (
-        lockAddress = r.logs[0].address
-      ))
+  // create traditional early-bird lock
+  params = lockInterface.encodeFunctionData(
+    "initialize(address,uint256,address,uint256,uint256,string)",
+    [
+      signer.address, 
+      ethers.constants.MaxUint256, // max for unlimited
+      adrs.usdc, // polygon usdc
+      ethers.utils.parseUnits("375", 6), // usdc is 6 decimals
+      100,
+      "ETHCHI - GA (early bird)",
+    ]
+  );
+  lockAddress;
+  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+    r.wait().then(r => (
+      lockAddress = r.logs[0].address
     ))
-    console.log(`Lock deployed to: ${lockAddress}`)
+  ))
+  console.log(`Lock deployed to: ${lockAddress}`)
 
+  // create traditional standard lock
+  params = lockInterface.encodeFunctionData(
+    "initialize(address,uint256,address,uint256,uint256,string)",
+    [
+      signer.address, 
+      ethers.constants.MaxUint256, // max for unlimited
+      adrs.usdc, // polygon usdc
+      ethers.utils.parseUnits("500", 6), // usdc is 6 decimals
+      100,
+      "ETHCHI - GA (standard)",
+    ]
+  );
+  lockAddress;
+  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+    r.wait().then(r => (
+      lockAddress = r.logs[0].address
+    ))
+  ))
+  console.log(`Lock deployed to: ${lockAddress}`)
 
+  // create hacker early-bird lock
+  params = lockInterface.encodeFunctionData(
+    "initialize(address,uint256,address,uint256,uint256,string)",
+    [
+      signer.address, 
+      ethers.constants.MaxUint256, // max for unlimited
+      adrs.usdc, // polygon usdc
+      ethers.utils.parseUnits("75", 6), // usdc is 6 decimals
+      150,
+      "ETHCHI - Hacker (early-bird)",
+    ]
+  );
+  lockAddress;
+  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+    r.wait().then(r => (
+      lockAddress = r.logs[0].address
+    ))
+  ))
+  console.log(`Lock deployed to: ${lockAddress}`)
 
-  } else {
-    console.log("network not supported")
-  }
+  // create hacker standard lock
+  params = lockInterface.encodeFunctionData(
+    "initialize(address,uint256,address,uint256,uint256,string)",
+    [
+      signer.address, 
+      ethers.constants.MaxUint256, // max for unlimited
+      adrs.usdc, // polygon usdc
+      ethers.utils.parseUnits("100", 6), // usdc is 6 decimals
+      150,
+      "ETHCHI - Hacker (standard)",
+    ]
+  );
+  lockAddress;
+  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+    r.wait().then(r => (
+      lockAddress = r.logs[0].address
+    ))
+  ))
+  console.log(`Lock deployed to: ${lockAddress}`)
+
+  console.log('All Locks deployed!')
 }
 
 // We recommend this pattern to be able to use async/await everywhere

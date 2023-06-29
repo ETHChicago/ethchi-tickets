@@ -19,6 +19,7 @@ async function main(): Promise<void> {
   const unlockAddress = adrs.unlockProtocol;
   const unlock = new ethers.Contract(unlockAddress, UnlockV12.abi, signer);
   const lockInterface = new ethers.utils.Interface(PublicLockV13.abi);
+  const lockVersion = 13;
 
   // create VIP lock
   let params = lockInterface.encodeFunctionData(
@@ -33,7 +34,7 @@ async function main(): Promise<void> {
     ]
   );
   let lockAddress;
-  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+  await unlock.createUpgradeableLockAtVersion(params, lockVersion).then(r => (
     r.wait().then(r => (
       lockAddress = r.logs[0].address
     ))
@@ -53,7 +54,7 @@ async function main(): Promise<void> {
     ]
   );
   lockAddress;
-  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+  await unlock.createUpgradeableLockAtVersion(params, lockVersion).then(r => (
     r.wait().then(r => (
       lockAddress = r.logs[0].address
     ))
@@ -73,7 +74,7 @@ async function main(): Promise<void> {
     ]
   );
   lockAddress;
-  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+  await unlock.createUpgradeableLockAtVersion(params, lockVersion).then(r => (
     r.wait().then(r => (
       lockAddress = r.logs[0].address
     ))
@@ -93,7 +94,7 @@ async function main(): Promise<void> {
     ]
   );
   lockAddress;
-  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+  await unlock.createUpgradeableLockAtVersion(params, lockVersion).then(r => (
     r.wait().then(r => (
       lockAddress = r.logs[0].address
     ))
@@ -113,7 +114,7 @@ async function main(): Promise<void> {
     ]
   );
   lockAddress;
-  await unlock.createUpgradeableLockAtVersion(params, 12).then(r => (
+  await unlock.createUpgradeableLockAtVersion(params, lockVersion).then(r => (
     r.wait().then(r => (
       lockAddress = r.logs[0].address
     ))
